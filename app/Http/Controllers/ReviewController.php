@@ -12,7 +12,9 @@ class ReviewController extends Controller
      */
     public function index()
     {
-        //
+        $reviews = Review::paginate(10);
+
+        return view('review.index', compact('reviews'));
     }
 
     /**
@@ -20,7 +22,7 @@ class ReviewController extends Controller
      */
     public function create()
     {
-        //
+        return view('reviews.create');
     }
 
     /**
@@ -36,7 +38,7 @@ class ReviewController extends Controller
      */
     public function show(Review $review)
     {
-        //
+        return view('reviews.show', compact('review'));
     }
 
     /**
@@ -44,7 +46,7 @@ class ReviewController extends Controller
      */
     public function edit(Review $review)
     {
-        //
+        return view('reviews.edit', compact('review'));
     }
 
     /**
