@@ -14,7 +14,7 @@ class Review extends Model
     protected $fillable = [
         'user_id',
         'book_id',
-        'content',
+        'comment',
         'rating',
     ];
 
@@ -28,9 +28,9 @@ class Review extends Model
         return $this->belongsTo(Book::class);
     }
 
-    public function likedUsers(): BelongsToMany
+    public function likedByUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'review_likes')
-         ->withTimestamps();
+            ->withTimestamps();
     }
 }

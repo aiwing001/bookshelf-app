@@ -11,7 +11,9 @@ class BookController extends Controller
 {
     public function index()
     {
-        $books = Book::latest()->paginate(10);
+        $books = Book::withAvg('reviews', 'rating')
+            ->latest()
+            ->paginate(10);
 
         return view('books.index', compact('books'));
     }
