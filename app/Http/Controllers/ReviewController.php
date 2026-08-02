@@ -40,11 +40,15 @@ class ReviewController extends Controller
 
     public function edit(Review $review)
     {
+        $this->authorize('update', $review);
+
         return view('reviews.edit', compact('review'));
     }
 
     public function update(UpdateReviewRequest $request, Review $review)
     {
+        $this->authorize('update', $review);
+
         $review->update($request->validated());
 
         return redirect()->route('books.show', $review->book);
@@ -52,10 +56,18 @@ class ReviewController extends Controller
 
     public function destroy(Review $review)
     {
+        $this->authorize('delete', $review);
         $book = $review->book;
 
         $review->delete();
 
         return redirect()->route('books.show', $book);
+    }
+
+    public function like(Review $review)
+    {
+        auth()->user()->likedReviews()->toggle($review->id);
+
+        return back();
     }
 }
