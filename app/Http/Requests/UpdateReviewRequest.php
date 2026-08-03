@@ -26,4 +26,12 @@ class UpdateReviewRequest extends FormRequest
             'comment' => 'required',
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'rating.required' => '評価を選択してください',
+            'comment.required' => 'レビューを入力してください',
+        ];
+    }
 }
