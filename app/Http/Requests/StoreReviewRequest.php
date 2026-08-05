@@ -3,22 +3,15 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Models\Review;
 
 class StoreReviewRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
@@ -32,6 +25,26 @@ class StoreReviewRequest extends FormRequest
         return [
             'rating.required' => '評価を選択してください',
             'comment.required' => 'レビューを入力してください',
+        ];
+    }
+
+    public function after(): array
+    {
+        $book = $this->route('book');
+
+        $exists = Review::where('user_id', auth()->id())
+            ->where('book_id', $book->id)
+            ->exists();
+
+        return [
+            function ($validator) use ($exists) {
+                if ($exists) {
+                    $validator->errors()->add(
+                        'comment',
+                        'この書籍にはすでにレビューを投稿しています'
+                    );
+                }
+            },
         ];
     }
 }
