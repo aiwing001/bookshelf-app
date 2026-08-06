@@ -31,6 +31,7 @@ class UpdateBookRequest extends FormRequest
 
             'isbn' => [
                 'required',
+                'digits:13',
                 Rule::unique('books', 'isbn')->ignore($this->route('book')),
             ],
 
@@ -50,6 +51,7 @@ class UpdateBookRequest extends FormRequest
 
             'isbn.required' => 'ISBNを入力してください',
             'isbn.unique' => 'このISBNはすでに登録されています',
+            'isbn.digits' => 'ISBNは13桁で入力してください',
 
             'published_date.required' => '出版日を入力してください。',
             'published_date.date' => '出版日は日付形式で入力してください',
