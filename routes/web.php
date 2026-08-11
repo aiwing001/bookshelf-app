@@ -36,6 +36,21 @@ Route::middleware('auth')->group(function () {
         ->name('reviews.destroy');
 
     Route::resource('genres', GenreController::class);
+
+    // TODO: 応用機能実装時にControllerへ置き換える
+    Route::get('/reports', function () {
+        return 'マイレポート準備中';
+    })->name('reports.index');
+
+    // TODO: 読書計画機能実装時にControllerへ置き換える
+    Route::get('/reading-plans', function () {
+        return '読書計画準備中';
+    })->name('reading-plans.index');
+
+    // TODO: 通知機能実装時にcontrollerへ置き換える
+    Route::get('/notifications', function () {
+        return '通知準備中';
+    })->name('notifications.index');
 });
 
 // 認証不要
