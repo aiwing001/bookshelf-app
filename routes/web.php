@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BookController;
@@ -37,6 +38,12 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('genres', GenreController::class);
 
+    Route::get('/notifications', [NotificationController::class, 'index'])
+        ->name('notifications.index');
+
+    Route::patch('/notifications/{Notification}/read', [NotificationController::class, 'read'])
+        ->name('notifications.read');
+
     // TODO: 応用機能実装時にControllerへ置き換える
     Route::get('/reports', function () {
         return 'マイレポート準備中';
@@ -46,11 +53,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/reading-plans', function () {
         return '読書計画準備中';
     })->name('reading-plans.index');
-
-    // TODO: 通知機能実装時にcontrollerへ置き換える
-    Route::get('/notifications', function () {
-        return '通知準備中';
-    })->name('notifications.index');
 });
 
 // 認証不要
