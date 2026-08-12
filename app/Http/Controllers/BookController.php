@@ -12,7 +12,7 @@ class BookController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Book::query();
+        $query = Book::withAvg('reviews', 'rating');
 
         if ($request->filled('keyword')) {
             $query->where(function ($q) use ($request) {
@@ -25,6 +25,31 @@ class BookController extends Controller
             $query->whereHas('genres', function ($q) use ($request) {
                 $q->where('genres.id', $request->genre);
             });
+        }
+
+        if ($request->filled('sort')) {
+            switch ($request->sort) {
+                case 'latest':
+                    $query->latest();
+                    break;
+
+                case 'oldest':
+                    $query->oldest();
+                    break;
+
+                case 'title':
+                    $query->orderBy('title');
+                    break;
+
+                case 'rating':
+                    $query->orderByDesc('reviews_avg_rating');
+                    break;
+
+                default:
+                    $query->latest();
+            }
+        } else {
+            $query->latest();
         }
 
         $books = $query->paginate(10);
