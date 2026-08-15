@@ -7,6 +7,7 @@ use App\Models\Genre;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
+use Illuminate\Support\Facades\Http;
 
 class BookController extends Controller
 {
@@ -124,5 +125,34 @@ class BookController extends Controller
         return redirect()
             ->route('books.index')
             ->with('success', '書籍を削除しました');
+    }
+
+    public function searchByIsbn(string $isbn)
+    {
+        $response = Http::get(
+            'https://www.googleapis.com/books/v1/volumes',
+            [
+                'q' => 'isbn:' . $isbn,
+                'key' => config('services.google_books.key'),
+            ]
+        );
+
+        $data = $response->json();
+
+        if (! isset($data['items'][0]['volumeInfo'])) {
+            return response()->json([
+                'error' => '書籍情報を取得できませんでした'
+            ], 404);
+        }
+
+        $volumeInfo = $data['items'][0]['volumeInfo'];
+
+        return response()->json([
+            'title' => $volumeInfo['title'],
+            'author' => implode('・', $volumeInfo['authors']),
+            'published_date' => $volumeInfo['publishedDate'],
+            'image_url' => $volumeInfo['imageLinks']['thumbnail'] ?? null,
+            'description' => $volumeInfo['description'] ?? '',
+        ]);
     }
 }
