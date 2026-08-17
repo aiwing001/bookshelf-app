@@ -53,7 +53,7 @@ class BookController extends Controller
             $query->latest();
         }
 
-        $books = $query->paginate(10);
+        $books = $query->paginate(10)->withQueryString();
 
         $genres = Genre::all();
 
