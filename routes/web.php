@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ReadingPlanController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
@@ -42,19 +43,19 @@ Route::middleware('auth')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])
         ->name('notifications.index');
 
-    Route::patch('/notifications/{Notification}/read', [NotificationController::class, 'read'])
+    Route::patch('/notifications/{notification}/read', [NotificationController::class, 'read'])
         ->name('notifications.read');
 
     Route::get('/reports', [ReportController::class, 'index'])
         ->name('reports.index');
 
-    // TODO: 読書計画機能実装時にControllerへ置き換える
-    Route::get('/reading-plans', function () {
-        return '読書計画準備中';
-    })->name('reading-plans.index');
-
     Route::get('/books/isbn/{isbn}', [BookController::class, 'searchByIsbn'])
         ->name('books.search-isbn');
+
+    Route::resource('reading-plans', ReadingPlanController::class);
+
+    Route::post('/reading-plans/{readingPlan}/complete', [ReadingPlanController::class, 'complete'])
+        ->name('reading-plans.complete');
 });
 
 // 認証不要
