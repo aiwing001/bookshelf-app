@@ -24,6 +24,6 @@ class NotificationController extends Controller
 
         $notification->markAsRead();
 
-        return back();
+        return redirect()->route('notifications.index');
     }
 }
