@@ -2,15 +2,40 @@
 
 namespace Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
+use App\Models\Review;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class ReviewTest extends TestCase
 {
-    /**
-     * A basic unit test example.
-     */
-    public function test_example(): void
+    public function test_review_belongs_to_user(): void
     {
-        $this->assertTrue(true);
+        $review = new Review();
+
+        $this->assertInstanceOf(
+            BelongsTo::class,
+            $review->user()
+        );
+    }
+
+    public function test_review_belongs_to_book(): void
+    {
+        $review = new Review();
+
+        $this->assertInstanceOf(
+            BelongsTo::class,
+            $review->book()
+        );
+    }
+
+    public function test_review_belongs_to_many_liked_by_users(): void
+    {
+        $review = new Review();
+
+        $this->assertInstanceOf(
+            BelongsToMany::class,
+            $review->likedByUsers()
+        );
     }
 }

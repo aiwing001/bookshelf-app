@@ -2,15 +2,29 @@
 
 namespace Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
+use App\Models\ReadingPlan;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ReadingPlanTest extends TestCase
 {
-    /**
-     * A basic unit test example.
-     */
-    public function test_example(): void
+    public function test_reading_plan_belongs_to_user(): void
     {
-        $this->assertTrue(true);
+        $readingPlan = new ReadingPlan();
+
+        $this->assertInstanceOf(
+            BelongsTo::class,
+            $readingPlan->user()
+        );
+    }
+
+    public function test_reading_plan_belongs_to_book(): void
+    {
+        $readingPlan = new ReadingPlan();
+
+        $this->assertInstanceOf(
+            BelongsTo::class,
+            $readingPlan->book()
+        );
     }
 }
