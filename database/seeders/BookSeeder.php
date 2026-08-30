@@ -130,9 +130,5 @@ class BookSeeder extends Seeder
 
             $book->genres()->sync($genreIds);
         }
-        // $data /本1冊分の配列
-        // $genres /ジャンル名の配列
-        // $book /Bookモデル
-        // $genreIds /ジャンルIDの配列
     }
 }
