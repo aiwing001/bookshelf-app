@@ -8,6 +8,8 @@ class ReportController extends Controller
     {
         $user = auth()->user();
 
+        $user->load('reviews.book.genres');
+
         $distribution = $user->reviews
             ->groupBy('rating')
             ->map(fn ($reviews) => $reviews->count());

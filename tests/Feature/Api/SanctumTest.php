@@ -100,4 +100,46 @@ class SanctumTest extends TestCase
             'id' => $book->id,
         ]);
     }
+
+    // ===== 他人の更新禁止 =====
+    public function test_user_cannot_update_other_users_book(): void
+    {
+        $owner = User::factory()->create();
+        $other = User::factory()->create();
+
+        $genre = Genre::factory()->create();
+
+        $book = Book::factory()->create([
+            'user_id' => $owner->id,
+        ]);
+
+        Sanctum::actingAs($other);
+
+        $response = $this->putJson("/api/v1/books/{$book->id}", [
+            'title' => '更新',
+            'author' => $book->author,
+            'isbn' => $book->isbn,
+            'published_date' => $book->published_date,
+            'genres' => [$genre->id],
+        ]);
+
+        $response->assertForbidden();
+    }
+
+    // ===== 他人の削除禁止 =====
+    public function test_user_cannot_delete_other_users_book(): void
+    {
+        $owner = User::factory()->create();
+        $other = User::factory()->create();
+
+        $book = Book::factory()->create([
+            'user_id' => $owner->id,
+        ]);
+
+        Sanctum::actingAs($other);
+
+        $response = $this->deleteJson("/api/v1/books/{$book->id}");
+
+        $response->assertForbidden();
+    }
 }

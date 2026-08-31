@@ -179,6 +179,25 @@ class ReviewTest extends TestCase
         $response->assertSessionHasErrors('rating');
     }
 
+    public function test_review_comment_is_required_when_updating(): void
+    {
+        $user = User::factory()->create();
+        $book = Book::factory()->create();
+
+        $review = Review::factory()->create([
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+        ]);
+
+        $response = $this->actingAs($user)
+            ->put(route('reviews.update', $review), [
+                'rating' => 5,
+                'comment' => '',
+            ]);
+
+        $response->assertSessionHasErrors('comment');
+    }
+
     // ===== 認可 =====
     public function test_user_cannot_access_other_users_review_edit_page(): void
     {

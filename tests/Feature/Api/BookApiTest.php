@@ -13,11 +13,16 @@ class BookApiTest extends TestCase
     // ===== 一覧取得 =====
     public function test_books_can_be_retrieved(): void
     {
-        Book::factory()->count(3)->create();
+        $books = Book::factory()->count(3)->create();
 
         $response = $this->getJson('/api/v1/books');
 
-        $response->assertOk();
+        $response->assertOk()
+            ->assertJsonCount(3)
+            ->assertJsonFragment([
+                'id' => $books->first()->id,
+                'title' => $books->first()->title,
+            ]);
     }
 
     // ===== 詳細取得 =====
@@ -27,6 +32,11 @@ class BookApiTest extends TestCase
 
         $response = $this->getJson("/api/v1/books/{$book->id}");
 
-        $response->assertOk();
+        $response->assertOk()
+            ->assertJsonFragment([
+                'id' => $book->id,
+                'title' => $book->title,
+                'author' => $book->author,
+            ]);
     }
 }
