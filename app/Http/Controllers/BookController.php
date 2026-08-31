@@ -128,31 +128,39 @@ class BookController extends Controller
     }
 
     public function searchByIsbn(string $isbn)
-    {
-        $response = Http::get(
-            'https://www.googleapis.com/books/v1/volumes',
-            [
-                'q' => 'isbn:' . $isbn,
-                'key' => config('services.google_books.key'),
-            ]
-        );
+{
+    $response = Http::get(
+        'https://www.googleapis.com/books/v1/volumes',
+        [
+            'q' => 'isbn:' . $isbn,
+            'key' => config('services.google_books.key'),
+        ]
+    );
 
-        $data = $response->json();
-
-        if (! isset($data['items'][0]['volumeInfo'])) {
-            return response()->json([
-                'error' => '書籍情報を取得できませんでした'
-            ], 404);
-        }
-
-        $volumeInfo = $data['items'][0]['volumeInfo'];
-
+    if ($response->failed()) {
         return response()->json([
-            'title' => $volumeInfo['title'],
-            'author' => implode('・', $volumeInfo['authors']),
-            'published_date' => $volumeInfo['publishedDate'],
-            'image_url' => $volumeInfo['imageLinks']['thumbnail'] ?? null,
-            'description' => $volumeInfo['description'] ?? '',
-        ]);
+            'error' => '書籍情報の取得中にエラーが発生しました'
+        ], $response->status());
     }
+
+    $data = $response->json();
+
+    if (! isset($data['items'][0]['volumeInfo'])) {
+        return response()->json([
+            'error' => '該当するISBNの書籍が見つかりませんでした'
+        ], 404);
+    }
+
+    $volumeInfo = $data['items'][0]['volumeInfo'];
+
+    return response()->json([
+        'title' => $volumeInfo['title'] ?? '',
+        'author' => isset($volumeInfo['authors'])
+            ? implode('・', $volumeInfo['authors'])
+            : '',
+        'published_date' => $volumeInfo['publishedDate'] ?? '',
+        'image_url' => $volumeInfo['imageLinks']['thumbnail'] ?? null,
+        'description' => $volumeInfo['description'] ?? '',
+    ]);
+}
 }
