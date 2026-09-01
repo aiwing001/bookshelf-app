@@ -53,6 +53,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/reading-plans', function () {
         return '読書計画準備中';
     })->name('reading-plans.index');
+
+    Route::get('/books/isbn/{isbn}', [BookController::class, 'searchByIsbn'])
+        ->name('books.search-isbn');
 });
 
 // 認証不要
