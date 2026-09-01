@@ -2,15 +2,19 @@
 
 namespace Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
+use App\Models\Genre;
+use Tests\TestCase;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class GenreTest extends TestCase
 {
-    /**
-     * A basic unit test example.
-     */
-    public function test_example(): void
+    public function test_genre_has_many_books(): void
     {
-        $this->assertTrue(true);
+        $genre = new Genre();
+
+        $this->assertInstanceOf(
+            BelongsToMany::class,
+            $genre->books()
+        );
     }
 }
