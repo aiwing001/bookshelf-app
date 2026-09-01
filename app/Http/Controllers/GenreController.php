@@ -12,7 +12,9 @@ class GenreController extends Controller
      */
     public function index()
     {
-        //
+        $genres = Genre::paginate(10);
+
+        return view('genres.index', compact('genres'));
     }
 
     /**
@@ -20,7 +22,7 @@ class GenreController extends Controller
      */
     public function create()
     {
-        //
+        return view('genres.create');
     }
 
     /**
@@ -28,7 +30,7 @@ class GenreController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        return redirect()->route('genres.index');
     }
 
     /**

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
-use Illuminate\Http\Request;
+use App\Models\Genre;
+use App\Http\Requests\StoreBookRequest;
+use App\Http\Requests\UpdateBookRequest;
 
 class BookController extends Controller
 {
@@ -12,7 +14,7 @@ class BookController extends Controller
      */
     public function index()
     {
-        $books = Book::paginate(10);
+        $books = Book::latest()->paginate(10);
 
         return view('books.index', compact('books'));
     }
@@ -22,15 +24,27 @@ class BookController extends Controller
      */
     public function create()
     {
-        //
+        $genres = Genre::all();
+
+        return view('books.create', compact('genres'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreBookRequest $request)
     {
-        //
+        $data = $request->validated();
+
+        $genreIds = $data['genre_ids'];
+        unset($data['genre_ids']);
+
+        $data['user_id'] = auth()->id();
+
+        $book = Book::create($data);
+        $book->genres()->sync($genreIds);
+
+        return redirect()->route('books.index');
     }
 
     /**
@@ -38,7 +52,7 @@ class BookController extends Controller
      */
     public function show(Book $book)
     {
-        //
+        return view('books.show', compact('book'));
     }
 
     /**
@@ -46,15 +60,26 @@ class BookController extends Controller
      */
     public function edit(Book $book)
     {
-        //
+        $genres = Genre::all();
+
+        return view('books.edit', compact('book', 'genres'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Book $book)
+    public function update(UpdateBookRequest $request, Book $book)
     {
-        //
+        $data = $request->validated();
+
+        $genreIds = $data['genre_ids'];
+        unset($data['genre_ids']);
+
+        $book->update($data);
+
+        $book->genres()->sync($genreIds);
+
+        return redirect()->route('books.index');
     }
 
     /**
@@ -62,6 +87,8 @@ class BookController extends Controller
      */
     public function destroy(Book $book)
     {
-        //
+        $book->delete();
+
+        return redirect()->route('books.index');
     }
 }
