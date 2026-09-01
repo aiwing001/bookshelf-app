@@ -22,7 +22,7 @@ class ReadingPlanController extends Controller
             $query->where('status', $request->status);
         }
 
-        $readingPlans = $query->paginate(10);
+        $readingPlans = $query->get();
 
         return view('reading-plans.index', compact(
             'readingPlans',
