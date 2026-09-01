@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BookController;
@@ -44,10 +45,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/notifications/{Notification}/read', [NotificationController::class, 'read'])
         ->name('notifications.read');
 
-    // TODO: 応用機能実装時にControllerへ置き換える
-    Route::get('/reports', function () {
-        return 'マイレポート準備中';
-    })->name('reports.index');
+    Route::get('/reports', [ReportController::class, 'index'])
+        ->name('reports.index');
 
     // TODO: 読書計画機能実装時にControllerへ置き換える
     Route::get('/reading-plans', function () {
