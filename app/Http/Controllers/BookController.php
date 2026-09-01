@@ -35,10 +35,11 @@ class BookController extends Controller
         $data['user_id'] = auth()->id();
 
         $book = Book::create($data);
-
         $book->genres()->sync($genreIds);
 
-        return redirect()->route('books.index');
+        return redirect()
+            ->route('books.index')
+            ->with('success', '書籍を登録しました');
     }
 
     public function show(Book $book)
@@ -68,7 +69,9 @@ class BookController extends Controller
 
         $book->genres()->sync($genreIds);
 
-        return redirect()->route('books.index');
+        return redirect()
+            ->route('books.index')
+            ->with('success', '書籍を更新しました');
     }
 
     public function destroy(Book $book)
@@ -77,6 +80,8 @@ class BookController extends Controller
 
         $book->delete();
 
-        return redirect()->route('books.index');
+        return redirect()
+            ->route('books.index')
+            ->with('success', '書籍を削除しました');
     }
 }
