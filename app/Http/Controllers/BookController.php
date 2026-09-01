@@ -2,23 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Book;
-use App\Models\Genre;
-use Illuminate\Http\Request;
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
+use App\Models\Book;
+use App\Models\Genre;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\View\View;
 
 class BookController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        $query = Book::withAvg('reviews', 'rating');
+        $query = Book::with('genres')
+            ->withAvg('reviews', 'rating');
 
         if ($request->filled('keyword')) {
             $query->where(function ($q) use ($request) {
-                $q->where('title', 'like', '%' . $request->keyword . '%')
-                    ->orWhere('author', 'like', '%' . $request->keyword . '%');
+                $q->where('title', 'like', '%'.$request->keyword.'%')
+                    ->orWhere('author', 'like', '%'.$request->keyword.'%');
             });
         }
 
@@ -31,6 +36,7 @@ class BookController extends Controller
         if ($request->filled('sort')) {
             switch ($request->sort) {
                 case 'latest':
+                case 'newest':
                     $query->latest();
                     break;
 
@@ -60,14 +66,17 @@ class BookController extends Controller
         return view('books.index', compact('books', 'genres'));
     }
 
-    public function create()
+    public function create(): View
     {
         $genres = Genre::all();
 
         return view('books.create', compact('genres'));
     }
 
-    public function store(StoreBookRequest $request)
+    /**
+     * 書籍を登録し、ジャンルとの関連付けを行う。
+     */
+    public function store(StoreBookRequest $request): RedirectResponse
     {
         $data = $request->validated();
 
@@ -76,20 +85,29 @@ class BookController extends Controller
 
         $data['user_id'] = auth()->id();
 
-        $book = Book::create($data);
-        $book->genres()->sync($genreIds);
+        DB::transaction(function () use ($data, $genreIds) {
+            $book = Book::create($data);
+
+            $book->genres()->sync($genreIds);
+        });
 
         return redirect()
             ->route('books.index')
             ->with('success', '書籍を登録しました');
     }
 
-    public function show(Book $book)
+    public function show(Book $book): View
     {
+        $book->load([
+            'genres',
+            'reviews.user',
+            'reviews.likedByUsers',
+        ]);
+
         return view('books.show', compact('book'));
     }
 
-    public function edit(Book $book)
+    public function edit(Book $book): View
     {
         $this->authorize('update', $book);
 
@@ -98,8 +116,13 @@ class BookController extends Controller
         return view('books.edit', compact('book', 'genres'));
     }
 
-    public function update(UpdateBookRequest $request, Book $book)
-    {
+    /**
+     * 書籍情報を更新し、ジャンルとの関連付けを更新する。
+     */
+    public function update(
+        UpdateBookRequest $request,
+        Book $book
+    ): RedirectResponse {
         $this->authorize('update', $book);
 
         $data = $request->validated();
@@ -107,16 +130,18 @@ class BookController extends Controller
         $genreIds = $data['genres'];
         unset($data['genres']);
 
-        $book->update($data);
+        DB::transaction(function () use ($book, $data, $genreIds) {
+            $book->update($data);
 
-        $book->genres()->sync($genreIds);
+            $book->genres()->sync($genreIds);
+        });
 
         return redirect()
             ->route('books.index')
             ->with('success', '書籍を更新しました');
     }
 
-    public function destroy(Book $book)
+    public function destroy(Book $book): RedirectResponse
     {
         $this->authorize('delete', $book);
 
@@ -127,40 +152,43 @@ class BookController extends Controller
             ->with('success', '書籍を削除しました');
     }
 
-    public function searchByIsbn(string $isbn)
-{
-    $response = Http::get(
-        'https://www.googleapis.com/books/v1/volumes',
-        [
-            'q' => 'isbn:' . $isbn,
-            'key' => config('services.google_books.key'),
-        ]
-    );
+    /**
+     * ISBNをもとにGoogle Books APIから書籍情報を取得する。
+     */
+    public function searchByIsbn(string $isbn): JsonResponse
+    {
+        $response = Http::get(
+            'https://www.googleapis.com/books/v1/volumes',
+            [
+                'q' => 'isbn:'.$isbn,
+                'key' => config('services.google_books.key'),
+            ]
+        );
 
-    if ($response->failed()) {
+        if ($response->failed()) {
+            return response()->json([
+                'error' => '書籍情報の取得中にエラーが発生しました',
+            ], $response->status());
+        }
+
+        $data = $response->json();
+
+        if (! isset($data['items'][0]['volumeInfo'])) {
+            return response()->json([
+                'error' => '該当するISBNの書籍が見つかりませんでした',
+            ], 404);
+        }
+
+        $volumeInfo = $data['items'][0]['volumeInfo'];
+
         return response()->json([
-            'error' => '書籍情報の取得中にエラーが発生しました'
-        ], $response->status());
+            'title' => $volumeInfo['title'] ?? '',
+            'author' => isset($volumeInfo['authors'])
+                ? implode('・', $volumeInfo['authors'])
+                : '',
+            'published_date' => $volumeInfo['publishedDate'] ?? '',
+            'image_url' => $volumeInfo['imageLinks']['thumbnail'] ?? null,
+            'description' => $volumeInfo['description'] ?? '',
+        ]);
     }
-
-    $data = $response->json();
-
-    if (! isset($data['items'][0]['volumeInfo'])) {
-        return response()->json([
-            'error' => '該当するISBNの書籍が見つかりませんでした'
-        ], 404);
-    }
-
-    $volumeInfo = $data['items'][0]['volumeInfo'];
-
-    return response()->json([
-        'title' => $volumeInfo['title'] ?? '',
-        'author' => isset($volumeInfo['authors'])
-            ? implode('・', $volumeInfo['authors'])
-            : '',
-        'published_date' => $volumeInfo['publishedDate'] ?? '',
-        'image_url' => $volumeInfo['imageLinks']['thumbnail'] ?? null,
-        'description' => $volumeInfo['description'] ?? '',
-    ]);
-}
 }

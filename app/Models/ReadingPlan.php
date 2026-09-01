@@ -25,12 +25,12 @@ class ReadingPlan extends Model
         'completed_at' => 'datetime',
     ];
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function book()
+    public function book(): BelongsTo
     {
         return $this->belongsTo(Book::class);
     }

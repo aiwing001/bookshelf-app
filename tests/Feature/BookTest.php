@@ -2,13 +2,13 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 use App\Models\Book;
-use App\Models\User;
 use App\Models\Genre;
 use App\Models\Review;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use Tests\TestCase;
 
 class BookTest extends TestCase
 {
@@ -359,7 +359,7 @@ class BookTest extends TestCase
     {
         $matchingBook = Book::factory()->create([
             'title' => 'Laravel入門',
-            'author' => '山田太郎'
+            'author' => '山田太郎',
         ]);
 
         $otherBook = Book::factory()->create([

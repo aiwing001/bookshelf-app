@@ -2,9 +2,9 @@
 
 namespace App\Notifications;
 
+use App\Models\ReadingPlan;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
-use App\Models\ReadingPlan;
 
 class ReadingPlanReminderNotification extends Notification
 {
@@ -30,7 +30,7 @@ class ReadingPlanReminderNotification extends Notification
             'body' => $this->type === '3days'
                 ? '目標日まであと3日です'
                 : '今日が目標日です',
-            'timing' => $this-> type === '3days'
+            'timing' => $this->type === '3days'
                 ? 'three_days_before'
                 : 'on_due_date',
             'target_date' => $this->readingPlan->target_date,

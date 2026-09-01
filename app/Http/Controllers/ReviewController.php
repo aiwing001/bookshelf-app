@@ -6,22 +6,24 @@ use App\Http\Requests\StoreReviewRequest;
 use App\Http\Requests\UpdateReviewRequest;
 use App\Models\Book;
 use App\Models\Review;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class ReviewController extends Controller
 {
-    public function index()
+    public function index(): View
     {
         $reviews = Review::paginate(10);
 
         return view('reviews.index', compact('reviews'));
     }
 
-    public function create()
+    public function create(): View
     {
         return view('reviews.create');
     }
 
-    public function store(StoreReviewRequest $request, Book $book)
+    public function store(StoreReviewRequest $request, Book $book): RedirectResponse
     {
         $data = $request->validated();
 
@@ -35,19 +37,19 @@ class ReviewController extends Controller
             ->with('success', 'レビューを登録しました');
     }
 
-    public function show(Review $review)
+    public function show(Review $review): View
     {
         return view('reviews.show', compact('review'));
     }
 
-    public function edit(Review $review)
+    public function edit(Review $review): View
     {
         $this->authorize('update', $review);
 
         return view('reviews.edit', compact('review'));
     }
 
-    public function update(UpdateReviewRequest $request, Review $review)
+    public function update(UpdateReviewRequest $request, Review $review): RedirectResponse
     {
         $this->authorize('update', $review);
 
@@ -58,9 +60,10 @@ class ReviewController extends Controller
             ->with('success', 'レビューを更新しました');
     }
 
-    public function destroy(Review $review)
+    public function destroy(Review $review): RedirectResponse
     {
         $this->authorize('delete', $review);
+
         $book = $review->book;
 
         $review->delete();
@@ -70,7 +73,7 @@ class ReviewController extends Controller
             ->with('success', 'レビューを削除しました');
     }
 
-    public function like(Review $review)
+    public function like(Review $review): RedirectResponse
     {
         auth()->user()->likedReviews()->toggle($review->id);
 

@@ -2,17 +2,20 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Enums\ReadingPlanStatus;
 use App\Models\ReadingPlan;
+use Illuminate\Console\Command;
 
 class UpdateExpiredReadingPlans extends Command
 {
     protected $signature = 'reading-plans:update-expired';
 
-    protected $description = 'Update expired reading plans';
+    protected $description = '期限切れの読書計画を更新する';
 
-    public function handle()
+    /**
+     * 期限切れの読書計画をExpiredへ更新する。
+     */
+    public function handle(): int
     {
         ReadingPlan::query()
             ->where('status', ReadingPlanStatus::InProgress)

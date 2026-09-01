@@ -3,14 +3,14 @@
 namespace Tests\Unit;
 
 use App\Models\Genre;
-use Tests\TestCase;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Tests\TestCase;
 
 class GenreTest extends TestCase
 {
     public function test_genre_has_many_books(): void
     {
-        $genre = new Genre();
+        $genre = new Genre;
 
         $this->assertInstanceOf(
             BelongsToMany::class,

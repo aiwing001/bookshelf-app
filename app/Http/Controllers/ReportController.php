@@ -2,9 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\View\View;
+
 class ReportController extends Controller
 {
-    public function index()
+    /**
+     * ログインユーザーのレビュー情報を集計し、
+     * 読書レポート画面を表示する。
+     */
+    public function index(): View
     {
         $user = auth()->user();
 
@@ -35,19 +41,16 @@ class ReportController extends Controller
             ];
         });
 
-        $genreRatings = collect();
-
-        foreach ($user->reviews as $review) {
-            foreach ($review->book->genres as $genre) {
-                $genreRatings->push([
-                    'id' => $genre->id,
-                    'name' => $genre->name,
-                    'rating' => $review->rating,
-                ]);
-            }
-        }
-
-        $genreRatings = $genreRatings
+        $genreRatings = $user->reviews
+            ->flatMap(function ($review) {
+                return $review->book->genres->map(function ($genre) use ($review) {
+                    return [
+                        'id' => $genre->id,
+                        'name' => $genre->name,
+                        'rating' => $review->rating,
+                    ];
+                });
+            })
             ->groupBy('id')
             ->map(function ($reviews) {
                 return [

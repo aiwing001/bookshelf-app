@@ -2,11 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Models\Book;
+use App\Models\Genre;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use App\Models\User;
-use App\Models\Genre;
-use App\Models\Book;
 
 class GenreTest extends TestCase
 {
@@ -114,7 +114,7 @@ class GenreTest extends TestCase
 
         $response = $this->actingAs($user)
             ->post(route('genres.store'), [
-                'name' => ''
+                'name' => '',
             ]);
 
         $response->assertSessionHasErrors('name');

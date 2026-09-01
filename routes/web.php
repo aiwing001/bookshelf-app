@@ -1,19 +1,20 @@
 <?php
 
+use App\Http\Controllers\BookController;
+use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\GenreController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\RankingController;
 use App\Http\Controllers\ReadingPlanController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\BookController;
-use App\Http\Controllers\RankingController;
-use App\Http\Controllers\FavoriteController;
-use App\Http\Controllers\GenreController;
 
 Route::redirect('/', '/books');
 
 // 要認証
 Route::middleware('auth')->group(function () {
+
     Route::resource('books', BookController::class)
         ->only(['create', 'store', 'edit', 'update', 'destroy']);
 
@@ -52,7 +53,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/books/isbn/{isbn}', [BookController::class, 'searchByIsbn'])
         ->name('books.search-isbn');
 
-    Route::resource('reading-plans', ReadingPlanController::class);
+    Route::resource('reading-plans', ReadingPlanController::class)
+        ->except(['show']);
 
     Route::post('/reading-plans/{readingPlan}/complete', [ReadingPlanController::class, 'complete'])
         ->name('reading-plans.complete');

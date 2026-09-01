@@ -2,16 +2,16 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
 use App\Models\Review;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Tests\TestCase;
 
 class ReviewTest extends TestCase
 {
     public function test_review_belongs_to_user(): void
     {
-        $review = new Review();
+        $review = new Review;
 
         $this->assertInstanceOf(
             BelongsTo::class,
@@ -21,7 +21,7 @@ class ReviewTest extends TestCase
 
     public function test_review_belongs_to_book(): void
     {
-        $review = new Review();
+        $review = new Review;
 
         $this->assertInstanceOf(
             BelongsTo::class,
@@ -31,7 +31,7 @@ class ReviewTest extends TestCase
 
     public function test_review_belongs_to_many_liked_by_users(): void
     {
-        $review = new Review();
+        $review = new Review;
 
         $this->assertInstanceOf(
             BelongsToMany::class,

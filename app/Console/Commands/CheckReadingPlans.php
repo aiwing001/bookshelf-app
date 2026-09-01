@@ -2,19 +2,23 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Enums\ReadingPlanStatus;
 use App\Models\ReadingPlan;
 use App\Notifications\ReadingPlanReminderNotification;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class CheckReadingPlans extends Command
 {
     protected $signature = 'app:check-reading-plans';
 
-    protected $description = 'Command description';
+    protected $description = '読書計画のリマインド通知を送信する';
 
-    public function handle()
+    /**
+     * 読書期限が3日前および当日の読書計画へ
+     * リマインド通知を送信する。
+     */
+    public function handle(): int
     {
         $plans = ReadingPlan::where(
             'status',
@@ -41,5 +45,7 @@ class CheckReadingPlans extends Command
                 new ReadingPlanReminderNotification($readingPlan, 'today')
             );
         }
+
+        return self::SUCCESS;
     }
 }
