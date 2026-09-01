@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreBookRequest;
+use App\Http\Requests\UpdateBookRequest;
 use App\Models\Book;
 
 class BookController extends Controller
@@ -25,5 +27,50 @@ class BookController extends Controller
         ]);
 
         return response()->json($book);
+    }
+
+    public function store(StoreBookRequest $request)
+    {
+        $data = $request->validated();
+
+        $genreIds = $data['genres'];
+        unset($data['genres']);
+
+        $data['user_id'] = auth()->id();
+
+        $book = Book::create($data);
+
+        $book->genres()->sync($genreIds);
+
+        $book->load('genres');
+
+        return response()->json($book, 201);
+    }
+
+    public function update(UpdateBookRequest $request, Book $book)
+    {
+        $this->authorize('update', $book);
+
+        $data = $request->validated();
+
+        $genreIds = $data['genres'];
+        unset($data['genres']);
+
+        $book->update($data);
+
+        $book->genres()->sync($genreIds);
+
+        $book->load('genres');
+
+        return response()->json($book);
+    }
+
+    public function destroy(Book $book)
+    {
+        $this->authorize('delete', $book);
+
+        $book->delete();
+
+        return response()->json(null, 204);
     }
 }
