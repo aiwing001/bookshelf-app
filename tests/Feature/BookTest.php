@@ -573,7 +573,25 @@ class BookTest extends TestCase
         $response->assertNotFound();
 
         $response->assertJson([
-            'error' => '書籍情報を取得できませんでした',
+            'error' => '該当するISBNの書籍が見つかりませんでした',
+        ]);
+    }
+
+    public function test_book_isbn_search_returns_api_error(): void
+    {
+        $user = User::factory()->create();
+
+        Http::fake([
+            'www.googleapis.com/*' => Http::response([], 500),
+        ]);
+
+        $response = $this->actingAs($user)
+            ->getJson(route('books.search-isbn', '1234567890123'));
+
+        $response->assertStatus(500);
+
+        $response->assertJson([
+            'error' => '書籍情報の取得中にエラーが発生しました',
         ]);
     }
 }
