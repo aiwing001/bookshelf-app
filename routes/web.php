@@ -43,7 +43,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])
         ->name('notifications.index');
 
-    Route::patch('/notifications/{notification}/read', [NotificationController::class, 'read'])
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'read'])
         ->name('notifications.read');
 
     Route::get('/reports', [ReportController::class, 'index'])

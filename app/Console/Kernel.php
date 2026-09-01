@@ -12,8 +12,12 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
+        $schedule->command('app:check-reading-plans')
+            ->dailyAt('20:00');
+
         $schedule->command('reading-plans:update-expired')
             ->dailyAt('20:00');
+
     }
 
     /**
