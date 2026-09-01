@@ -6,6 +6,7 @@ use App\Http\Requests\StoreReadingPlanRequest;
 use App\Http\Requests\UpdateReadingPlanRequest;
 use App\Models\ReadingPlan;
 use App\Models\Book;
+use App\Enums\ReadingPlanStatus;
 use Illuminate\Http\Request;
 
 class ReadingPlanController extends Controller
@@ -60,7 +61,16 @@ class ReadingPlanController extends Controller
     {
         $this->authorize('update', $readingPlan);
 
-        $readingPlan->update($request->validated());
+        $data = $request->validated();
+
+        if (
+            $readingPlan->status === ReadingPlanStatus::Expired
+            && $data['target_date'] >= today()->toDateString()
+        ) {
+            $data['status'] = ReadingPlanStatus::InProgress;
+        }
+
+        $readingPlan->update($data);
 
         return redirect()
             ->route('reading-plans.index')
@@ -83,7 +93,7 @@ class ReadingPlanController extends Controller
         $this->authorize('complete', $readingPlan);
 
         $readingPlan->update([
-            'status' => \App\Enun\ReadingPlanStatus::Completed,
+            'status' => ReadingPlanStatus::Completed,
             'completed_at' => now(),
         ]);
 
