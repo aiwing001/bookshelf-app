@@ -23,19 +23,19 @@ class UpdateBookRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|max:255',
+            'title' => 'required|max:255',
             'author' => 'required|max:255',
-            'publication' => 'required|date',
+            'published_date' => 'required|date',
             'image_url' => 'nullable|url|max:255',
-            'description' => 'required',
+            'description' => 'nullable',
 
             'isbn' => [
                 'required',
                 Rule::unique('books', 'isbn')->ignore($this->route('book')),
             ],
 
-            'genre_ids' => 'required|array',
-            'genre_ids.*' => 'exists:genres,id',
+            'genres' => 'required|array',
+            'genres.*' => 'exists:genres,id',
         ];
     }
 }

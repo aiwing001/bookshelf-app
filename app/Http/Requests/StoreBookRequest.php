@@ -22,15 +22,15 @@ class StoreBookRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|max:255',
+            'title' => 'required|max:255',
             'author' => 'required|max:255',
-            'publication' => 'required|date',
+            'isbn' => 'required|unique:books,isbn',
+            'published_date' => 'nullable|date',
             'image_url' => 'nullable|url|max:255',
             // 'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
             'description' => 'required',
-            'isbn' => 'required|unique:books,isbn',
-            'genre_ids' => 'required|array',
-            'genre_ids.*' => 'exists:genres,id',
+            'genres' => 'required|array',
+            'genres.*' => 'exists:genres,id',
         ];
     }
 }
